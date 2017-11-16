@@ -18,22 +18,25 @@ typedef struct auta
 	int cena;
 	int rok_vyroby;
 	char *stav_vozidla;
-	struct auta *dalsi;
+	struct auta * dalsi;
 
 }AUTA;
 
-void	fnc_n(AUTA **auta_first, AUTA **auta_act);
+void	fnc_n(AUTA **auta_first);
+void	fnc_v(AUTA *auta_first);
+
+//custom function for cleaner code
 char*	safe_copy_string(FILE *f);
 int		safe_copy_int(FILE *f);
 void	alloc_auta(AUTA* auta_alloc);
 
 
+
 void main() {
-	AUTA *auta_first, *auta_act;
+	AUTA *auta_first;
 	char function_char;
 
 	auta_first = NULL;
-	auta_act = NULL;
 	function_char = 'a';
 
 	while (function_char != 'k') {
@@ -42,11 +45,10 @@ void main() {
 		switch (function_char)
 		{
 		case 'n':
-			fnc_n(&auta_first, &auta_act);			
+			fnc_n(&auta_first);			
 			break;
 		case 'v':
-			printf("treba spravit\n");
-			printf("%s\n", auta_first->kategoria);
+			fnc_v(auta_first);
 			break;
 		default:
 			break;
@@ -57,8 +59,9 @@ void main() {
 	return;
 }
 
-void fnc_n(AUTA **auta_first, AUTA **auta_act) {
+void fnc_n(AUTA **auta_first) {
 	FILE *file_to_read;
+	AUTA *auta_act;
 	int number_of_records, type_of_record;
 	char ch;
 
@@ -75,7 +78,11 @@ void fnc_n(AUTA **auta_first, AUTA **auta_act) {
 
 	//inicial allocation of struct
 	*auta_first = (AUTA *)malloc(sizeof(AUTA));
-	*auta_act = (AUTA *)malloc(sizeof(AUTA));
+	auta_act = (AUTA *)malloc(sizeof(AUTA));
+
+	if ((*auta_first == NULL)||(auta_act == NULL)) {
+		printf("nedostatok pamati\n");
+	}
 
 
 
@@ -86,33 +93,70 @@ void fnc_n(AUTA **auta_first, AUTA **auta_act) {
 		}
 		else
 		{
-			alloc_auta(*auta_act);
+			alloc_auta(auta_act);
 
-			(*auta_act)->kategoria = safe_copy_string(file_to_read);
-			(*auta_act)->znacka = safe_copy_string(file_to_read);
-			(*auta_act)->predajca = safe_copy_string(file_to_read);
-			(*auta_act)->cena = safe_copy_int(file_to_read);
-			(*auta_act)->rok_vyroby = safe_copy_int(file_to_read);
-			(*auta_act)->stav_vozidla = safe_copy_string(file_to_read);
+			auta_act->kategoria = safe_copy_string(file_to_read);
+			auta_act->znacka = safe_copy_string(file_to_read);
+			auta_act->predajca = safe_copy_string(file_to_read);
+			auta_act->cena = safe_copy_int(file_to_read);
+			auta_act->rok_vyroby = safe_copy_int(file_to_read);
+			auta_act->stav_vozidla = safe_copy_string(file_to_read);
+			
+			//printf("%s\n", auta_act->kategoria);
 
 			if (number_of_records == 1) {
 				//saving first element of linked list
-				*auta_first = *auta_act;
-				*auta_act = (*auta_act)->dalsi;
-				*auta_act = (AUTA *)malloc(sizeof(AUTA));
-				alloc_auta(*auta_act);
+				*auta_first = auta_act;
+				auta_act = auta_act->dalsi;
+				auta_act = (AUTA *)malloc(sizeof(AUTA));
+				alloc_auta(auta_act);
 			}
 			else
 			{
 				//new element of linked list
-				*auta_act = (*auta_act)->dalsi;
-				*auta_act = (AUTA *)malloc(sizeof(AUTA));
-				alloc_auta(*auta_act);
+				auta_act = auta_act->dalsi;
+				auta_act = (AUTA *)malloc(sizeof(AUTA));
+				alloc_auta(auta_act);
 			}
+			//printf("1.%s\n", (*auta_first)->kategoria);
 		}
 	}
-
 	printf("Nacitalo sa %d zaznamov\n", number_of_records);
+	printf("1.%s\n", (*auta_first)->dalsi->kategoria);
+	printf("2.%s\n\n", (*auta_first)->kategoria);
+	int number_of_elements = 0;
+	auta_act = (*auta_first);
+	printf("1.%s\n", auta_act->kategoria);
+	printf("2.%s\n", (*auta_first)->kategoria);
+	while (auta_act != NULL) {
+		printf("%d.\n", ++number_of_elements);
+		printf("kategoria: %s\n", auta_act->kategoria);
+		printf("zancka: %s\n", auta_act->znacka);
+		printf("predajca: %s\n", auta_act->predajca);
+		printf("cena: %d\n", auta_act->cena);
+		printf("rok_vyroby: %d\n", auta_act->rok_vyroby);
+		printf("stav_vozidla: %s\n", auta_act->stav_vozidla);
+		auta_act = auta_act->dalsi;
+	}
+	fclose(file_to_read);
+}
+
+void fnc_v(AUTA *auta_first) {
+	AUTA* auta_print = auta_first;
+	int number_of_elements = 0;
+
+
+	while (auta_print != NULL) {
+		printf("%d.\n", ++number_of_elements);
+		printf("kategoria: %s\n", auta_print->kategoria);
+		printf("zancka: %s\n", auta_print->znacka);
+		printf("predajca: %s\n", auta_print->predajca);
+		printf("cena: %d\n", auta_print->cena);
+		printf("rok_vyroby: %d\n", auta_print->rok_vyroby);
+		printf("stav_vozidla: %s\n", auta_print->stav_vozidla);
+		auta_print = auta_print->dalsi;
+	}
+
 }
 
 

@@ -1,5 +1,5 @@
 $
-osobny automobil
+prve osobny automobil
 Ferrari
 Autobazar Pestovatelska 4 Bratislava
 68957
@@ -34,7 +34,7 @@ Autobazar Pestovatelska 4 Bratislava
 2012
 udrziavane cervene dvojdverove
 $
-kamion
+posledne kamion
 Renault magnum
 AUTO Modranska 5 Senec
 28000
