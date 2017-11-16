@@ -58,8 +58,9 @@ void fnc_n() {
 	FILE *file_to_read;
 	AUTA *auta_first, *auta_act;
 	int number_of_records, type_of_record;
-	char ch, *buffer_string;
+	char ch;
 
+	//inicialization of variables
 	number_of_records = 0;
 	auta_first = NULL;
 	auta_act = NULL;
@@ -69,12 +70,6 @@ void fnc_n() {
 	if (file_to_read == NULL) {
 		printf("Zaznamy nebolu nacitane\n");
 		return;
-	}
-
-	//alloc fo buffer !!!51 needed to be changed!!!
-	buffer_string = (char *)malloc(51 * sizeof(char));
-	if (buffer_string == NULL) {
-		printf("Buffer string allocation error");
 	}
 
 	//inicial allocation of struct
@@ -90,11 +85,7 @@ void fnc_n() {
 		}
 		else
 		{
-			auta_act->kategoria = (char*)malloc(kategoria_size * sizeof(char));
-			auta_act->znacka = (char*)malloc(znacka_size * sizeof(char));
-			auta_act->predajca = (char*)malloc(predajca_size * sizeof(char));
-			auta_act->stav_vozidla = (char*)malloc(stav_vozidla_size * sizeof(char));
-			auta_act->dalsi = NULL;
+			alloc_auta(auta_act);
 
 			auta_act->kategoria = safe_copy_string(file_to_read);
 			printf("%s\n", auta_act->kategoria);
