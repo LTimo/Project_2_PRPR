@@ -59,7 +59,7 @@ void fnc_n() {
 	int number_of_records, type_of_record;
 	char ch, *buffer_string;
 
-	
+	number_of_records = 0;
 	auta_first = NULL;
 	auta_act = NULL;
 
@@ -73,20 +73,22 @@ void fnc_n() {
 	if (buffer_string == NULL) {
 		printf("Buffer string allocation error");
 	}
-	
+
 
 	auta_first = (AUTA *)malloc(sizeof(AUTA));
 	auta_act = (AUTA *)malloc(sizeof(AUTA));
-	
+
+	auta_first->kategoria = (char*)malloc(kategoria_size * sizeof(char));
+	auta_first->znacka = (char*)malloc(znacka_size * sizeof(char));
+	auta_first->predajca = (char*)malloc(predajca_size * sizeof(char));
+	auta_first->stav_vozidla = (char*)malloc(stav_vozidla_size * sizeof(char));
 
 
-	number_of_records = 0;
-	
 
 	while (!feof(file_to_read)) {
 		if ((ch = fgetc(file_to_read)) == '$') {
 			number_of_records++;
-			printf("%c%d\n",ch, number_of_records);
+			printf("%c%d\n", ch, number_of_records);
 		}
 		else
 		{
@@ -94,6 +96,7 @@ void fnc_n() {
 			auta_act->znacka = (char*)malloc(znacka_size * sizeof(char));
 			auta_act->predajca = (char*)malloc(predajca_size * sizeof(char));
 			auta_act->stav_vozidla = (char*)malloc(stav_vozidla_size * sizeof(char));
+			auta_act->dalsi = NULL;
 
 			auta_act->kategoria = safe_copy_string(file_to_read);
 			printf("%s\n", auta_act->kategoria);
@@ -111,18 +114,29 @@ void fnc_n() {
 			if (number_of_records == 1) {
 				auta_first = auta_act;
 				printf("\n1 == %s\n", auta_first->kategoria);
-				auta_first->dalsi = auta_act;
+				auta_act = auta_act->dalsi;
+				auta_act = (AUTA *)malloc(sizeof(AUTA));
+				auta_act->kategoria = (char*)malloc(kategoria_size * sizeof(char));
+				auta_act->znacka = (char*)malloc(znacka_size * sizeof(char));
+				auta_act->predajca = (char*)malloc(predajca_size * sizeof(char));
+				auta_act->stav_vozidla = (char*)malloc(stav_vozidla_size * sizeof(char));
+				auta_act->dalsi = NULL;
 			}
-			else {
-				printf("\n1 == %s\n", auta_first->kategoria);
-				printf("1 == %s\n\n", auta_act->kategoria);
-				auta_act->dalsi = auta_act;
+			else
+			{
+				auta_act = auta_act->dalsi;
+				auta_act = (AUTA *)malloc(sizeof(AUTA));
+				auta_act->kategoria = (char*)malloc(kategoria_size * sizeof(char));
+				auta_act->znacka = (char*)malloc(znacka_size * sizeof(char));
+				auta_act->predajca = (char*)malloc(predajca_size * sizeof(char));
+				auta_act->stav_vozidla = (char*)malloc(stav_vozidla_size * sizeof(char));
+				auta_act->dalsi = NULL;
 			}
+			printf("________________hotovo \n");
+			printf("%s\n", auta_first->kategoria);
+			printf("%s\n________________\n", auta_first->znacka);
 		}
 	}
-	printf("hotovo \n");
-	printf("%s\n", auta_first->kategoria);
-	printf("%s\n", auta_first->znacka);
 }
 
 char*	safe_copy_string(FILE *f) {
@@ -170,34 +184,3 @@ int	safe_copy_int(FILE *f) {
 
 	return integer;
 }
-
-/*AUTA *auta_act, *auta_first;
-	auta_act = NULL;
-	auta_first = NULL;
-
-	auta_act = (AUTA *)malloc(sizeof(AUTA));
-	auta_first = (AUTA *)malloc(sizeof(AUTA));
-
-	scanf("%s", &auta_first->kategoria);
-	for (int i = 0; i < 5; i++) {
-			printf("%c", auta_first->kategoria[i]);
-		}
-
-	auta_first->dalsi = auta_act;
-	
-
-	auta_act->kategoria[0] = 'b';
-	auta_act->kategoria[1] = 'l';
-	auta_act->kategoria[2] = 'a';
-	auta_act->kategoria[3] = 'k';
-	auta_act->kategoria[4] = '\0';
-
-	for (int i = 0; i < 5; i++) {
-		printf("%c", auta_act->kategoria[i]);
-	}
-
-	for (int i = 0; i < 5; i++) {
-		printf("%c", auta_first->kategoria[i]);
-	}
-
-	_getch();*/
