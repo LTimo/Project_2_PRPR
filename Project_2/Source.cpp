@@ -22,15 +22,18 @@ typedef struct auta
 
 }AUTA;
 
-void	fnc_n();
+void	fnc_n(AUTA **auta_first, AUTA **auta_act);
 char*	safe_copy_string(FILE *f);
 int		safe_copy_int(FILE *f);
 void	alloc_auta(AUTA* auta_alloc);
 
 
 void main() {
+	AUTA *auta_first, *auta_act;
 	char function_char;
 
+	auta_first = NULL;
+	auta_act = NULL;
 	function_char = 'a';
 
 	while (function_char != 'k') {
@@ -39,11 +42,11 @@ void main() {
 		switch (function_char)
 		{
 		case 'n':
-			fnc_n();
-			
+			fnc_n(&auta_first, &auta_act);			
 			break;
 		case 'v':
 			printf("treba spravit\n");
+			printf("%s\n", auta_first->kategoria);
 			break;
 		default:
 			break;
@@ -54,16 +57,14 @@ void main() {
 	return;
 }
 
-void fnc_n() {
+void fnc_n(AUTA **auta_first, AUTA **auta_act) {
 	FILE *file_to_read;
-	AUTA *auta_first, *auta_act;
 	int number_of_records, type_of_record;
 	char ch;
 
 	//inicialization of variables
 	number_of_records = 0;
-	auta_first = NULL;
-	auta_act = NULL;
+
 
 	//opening of file
 	file_to_read = fopen("auta.txt", "r");
@@ -73,80 +74,76 @@ void fnc_n() {
 	}
 
 	//inicial allocation of struct
-	auta_first = (AUTA *)malloc(sizeof(AUTA));
-	auta_act = (AUTA *)malloc(sizeof(AUTA));
+	*auta_first = (AUTA *)malloc(sizeof(AUTA));
+	*auta_act = (AUTA *)malloc(sizeof(AUTA));
 
 
 
 	while (!feof(file_to_read)) {
+		//recognizing start and counting of records
 		if ((ch = fgetc(file_to_read)) == '$') {
 			number_of_records++;
-			printf("%d\n", number_of_records);
 		}
 		else
 		{
-			alloc_auta(auta_act);
+			alloc_auta(*auta_act);
 
-			auta_act->kategoria = safe_copy_string(file_to_read);
-			printf("%s\n", auta_act->kategoria);
-			auta_act->znacka = safe_copy_string(file_to_read);
-			printf("%s\n", auta_act->znacka);
-			auta_act->predajca = safe_copy_string(file_to_read);
-			printf("%s\n", auta_act->predajca);
-			auta_act->cena = safe_copy_int(file_to_read);
-			printf("%d\n", auta_act->cena);
-			auta_act->rok_vyroby = safe_copy_int(file_to_read);
-			printf("%d\n", auta_act->rok_vyroby);
-			auta_act->stav_vozidla = safe_copy_string(file_to_read);
-			printf("%s\n", auta_act->stav_vozidla);
+			(*auta_act)->kategoria = safe_copy_string(file_to_read);
+			(*auta_act)->znacka = safe_copy_string(file_to_read);
+			(*auta_act)->predajca = safe_copy_string(file_to_read);
+			(*auta_act)->cena = safe_copy_int(file_to_read);
+			(*auta_act)->rok_vyroby = safe_copy_int(file_to_read);
+			(*auta_act)->stav_vozidla = safe_copy_string(file_to_read);
 
 			if (number_of_records == 1) {
-				auta_first = auta_act;
-				auta_act = auta_act->dalsi;
-				auta_act = (AUTA *)malloc(sizeof(AUTA));
-				alloc_auta(auta_act);
+				//saving first element of linked list
+				*auta_first = *auta_act;
+				*auta_act = (*auta_act)->dalsi;
+				*auta_act = (AUTA *)malloc(sizeof(AUTA));
+				alloc_auta(*auta_act);
 			}
 			else
 			{
-				auta_act = auta_act->dalsi;
-				auta_act = (AUTA *)malloc(sizeof(AUTA));
-				alloc_auta(auta_act);
+				//new element of linked list
+				*auta_act = (*auta_act)->dalsi;
+				*auta_act = (AUTA *)malloc(sizeof(AUTA));
+				alloc_auta(*auta_act);
 			}
-			printf("________________\n");
-			printf("%s\n", auta_first->kategoria);
-			printf("%s\n________________\n", auta_first->znacka);
 		}
 	}
+
+	printf("Nacitalo sa %d zaznamov\n", number_of_records);
 }
 
+
 char*	safe_copy_string(FILE *f) {
-	/*
-	* making of string from  file without '\n'
-	*	copy from file until the '\n'
-	*	'\n' replaced by '\0'
-	*	returned the string
-	*/
-	char buffer_char = '\0';
-	char *buffer_string = NULL;
-	int i = 0;
+		/*
+		* making of string from  file without '\n'
+		*	copy from file until the '\n'
+		*	'\n' replaced by '\0'
+		*	returned the string
+		*/
+		char buffer_char = '\0';
+		char *buffer_string = NULL;
+		int i = 0;
 
-	//allocation of *buffer_string
-	//need to change the 51 nuber to dinamic number
-	buffer_string = (char *)malloc(51 * sizeof(char));
-	if (buffer_string == NULL) {
-		printf("error");
-	}
-
-	for (i = 0; i < 50 ; i++) {
-		buffer_char = fgetc(f);
-		if ((buffer_char == '\n')||(feof(f))){
-			buffer_string[i] = '\0';
-			break;
+		//allocation of *buffer_string
+		//need to change the 51 nuber to dinamic number
+		buffer_string = (char *)malloc(51 * sizeof(char));
+		if (buffer_string == NULL) {
+			printf("error");
 		}
-		buffer_string[i] = buffer_char;
-	}
 
-	return buffer_string;
+		for (i = 0; i < 50; i++) {
+			buffer_char = fgetc(f);
+			if ((buffer_char == '\n') || (feof(f))) {
+				buffer_string[i] = '\0';
+				break;
+			}
+			buffer_string[i] = buffer_char;
+		}
+
+		return buffer_string;
 }
 
 int	safe_copy_int(FILE *f) {
