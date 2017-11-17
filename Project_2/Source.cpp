@@ -152,31 +152,29 @@ void fnc_v(AUTA *auta_first) {
 }
 
 void fnc_p(AUTA **auta_first, int number_of_records) {
-	AUTA *auta_act, *auta_posun, *auta_buffer_1 = NULL, *auta_buffer_2 = NULL;
-	int position_add;
+	AUTA *auta_copy, *auta_temp;
+	int position, act_position; 
 
-	//inicialization
-	scanf("%d", &position_add);
-	auta_act = *auta_first;
+	auta_copy = *auta_first;
+	auta_temp = NULL;
+	scanf("%d", &position);
 
-	for (int i = 1; i <= (number_of_records+1); i++) {
-		printf("actual in for: %s\n", auta_act->kategoria);
-		if (i > (position_add - 1)) {
-			auta_buffer_1 = auta_act;
-			auta_buffer_2 = auta_act->dalsi;
-			auta_act->dalsi = auta_buffer_1;
-			auta_act = auta_act->dalsi;
-			printf("buf %s\n", auta_buffer_1->kategoria);
+	act_position = 0;
+
+	while (auta_copy->dalsi != NULL) {
+		act_position++;
+		auta_temp = (AUTA *)malloc(sizeof(AUTA));
+		alloc_auta(auta_temp);
+		auta_temp->dalsi = NULL;
+		if (act_position == position) {
+			auta_temp->kategoria = "treba to spravit";
 		}
-		else
-		{
-			auta_act = auta_act->dalsi;
-			auta_buffer_1 = auta_act;
-		}			
-		
+		else {
+			auta_temp = auta_copy;
+			auta_copy = auta_copy->dalsi;
+		}
 	}
-	auta_act->dalsi = NULL;
-	//printf("%s\n", auta_act->kategoria);
+
 }
 
 char*	safe_copy_string_form_file(FILE *f) {
@@ -192,7 +190,7 @@ char*	safe_copy_string_form_file(FILE *f) {
 
 		//allocation of *buffer_string
 		//need to change the 51 nuber to dinamic number
-		buffer_string = (char *)malloc(51 * sizeof(char));
+		buffer_string = (char *)malloc(stav_vozidla_size * sizeof(char));
 		if (buffer_string == NULL) {
 			printf("error");
 		}
