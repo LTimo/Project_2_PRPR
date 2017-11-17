@@ -24,10 +24,11 @@ typedef struct auta
 
 void	fnc_n(AUTA **auta_first);
 void	fnc_v(AUTA *auta_first);
+void	fnc_p(AUTA **auta_first);
 
 //custom function for cleaner code
-char*	safe_copy_string(FILE *f);
-int		safe_copy_int(FILE *f);
+char*	safe_copy_string_form_file(FILE *f);
+int		safe_copy_int_from_file(FILE *f);
 void	alloc_auta(AUTA* auta_alloc);
 
 
@@ -50,6 +51,8 @@ void main() {
 		case 'v':
 			fnc_v(auta_first);
 			break;
+		case 'p':
+			fnc_p(&auta_first);
 		default:
 			break;
 		}
@@ -76,13 +79,13 @@ void fnc_n(AUTA **auta_first) {
 		return;
 	}
 
-	//inicial allocation of struct
-	*auta_first = (AUTA *)malloc(sizeof(AUTA));
+	//inicial allocation of struct + error handling
 	auta_act = (AUTA *)malloc(sizeof(AUTA));
-
-	if ((*auta_first == NULL)||(auta_act == NULL)) {
+	if (auta_act == NULL) {
 		printf("nedostatok pamati\n");
 	}
+	auta_act->dalsi = NULL;
+	*auta_first = auta_act;
 
 
 
@@ -90,54 +93,41 @@ void fnc_n(AUTA **auta_first) {
 		//recognizing start and counting of records
 		if ((ch = fgetc(file_to_read)) == '$') {
 			number_of_records++;
+		
+		}
+		else if (ch == '\0') {
+			break;
 		}
 		else
 		{
 			alloc_auta(auta_act);
 
-			auta_act->kategoria = safe_copy_string(file_to_read);
-			auta_act->znacka = safe_copy_string(file_to_read);
-			auta_act->predajca = safe_copy_string(file_to_read);
-			auta_act->cena = safe_copy_int(file_to_read);
-			auta_act->rok_vyroby = safe_copy_int(file_to_read);
-			auta_act->stav_vozidla = safe_copy_string(file_to_read);
-			
-			//printf("%s\n", auta_act->kategoria);
+			//reading from file and saving it to linked list
+			auta_act->kategoria = safe_copy_string_form_file(file_to_read);
+			auta_act->znacka = safe_copy_string_form_file(file_to_read);
+			auta_act->predajca = safe_copy_string_form_file(file_to_read);
+			auta_act->cena = safe_copy_int_from_file(file_to_read);
+			auta_act->rok_vyroby = safe_copy_int_from_file(file_to_read);
+			auta_act->stav_vozidla = safe_copy_string_form_file(file_to_read);
 
 			if (number_of_records == 1) {
-				//saving first element of linked list
-				*auta_first = auta_act;
+				auta_act->dalsi = (auta*)malloc(sizeof(auta));
+				alloc_auta(auta_act->dalsi);
 				auta_act = auta_act->dalsi;
-				auta_act = (AUTA *)malloc(sizeof(AUTA));
-				alloc_auta(auta_act);
+				auta_act->dalsi = NULL;
+		
 			}
 			else
 			{
-				//new element of linked list
+				auta_act->dalsi = (auta*)malloc(sizeof(auta));
+				alloc_auta(auta_act->dalsi);
 				auta_act = auta_act->dalsi;
-				auta_act = (AUTA *)malloc(sizeof(AUTA));
-				alloc_auta(auta_act);
+				auta_act->dalsi = NULL;
 			}
-			//printf("1.%s\n", (*auta_first)->kategoria);
 		}
 	}
 	printf("Nacitalo sa %d zaznamov\n", number_of_records);
-	printf("1.%s\n", (*auta_first)->dalsi->kategoria);
-	printf("2.%s\n\n", (*auta_first)->kategoria);
-	int number_of_elements = 0;
-	auta_act = (*auta_first);
-	printf("1.%s\n", auta_act->kategoria);
-	printf("2.%s\n", (*auta_first)->kategoria);
-	while (auta_act != NULL) {
-		printf("%d.\n", ++number_of_elements);
-		printf("kategoria: %s\n", auta_act->kategoria);
-		printf("zancka: %s\n", auta_act->znacka);
-		printf("predajca: %s\n", auta_act->predajca);
-		printf("cena: %d\n", auta_act->cena);
-		printf("rok_vyroby: %d\n", auta_act->rok_vyroby);
-		printf("stav_vozidla: %s\n", auta_act->stav_vozidla);
-		auta_act = auta_act->dalsi;
-	}
+	free(auta_act->dalsi);
 	fclose(file_to_read);
 }
 
@@ -145,8 +135,11 @@ void fnc_v(AUTA *auta_first) {
 	AUTA* auta_print = auta_first;
 	int number_of_elements = 0;
 
+	if (auta_first == NULL) {
+		return;
+	}
 
-	while (auta_print != NULL) {
+	while (auta_print->dalsi != NULL) {
 		printf("%d.\n", ++number_of_elements);
 		printf("kategoria: %s\n", auta_print->kategoria);
 		printf("zancka: %s\n", auta_print->znacka);
@@ -159,8 +152,55 @@ void fnc_v(AUTA *auta_first) {
 
 }
 
+void fnc_p(AUTA **auta_first) {
+	AUTA *auta_act, *auta_posun, *auta_buffer_1, *auta_buffer_2 = NULL;
+	int position_add, position_actual;
 
-char*	safe_copy_string(FILE *f) {
+	//get position where we will add new element of linked list
+	scanf("%d", &position_add);
+	position_actual = 0;
+
+	//inicial allocation of struct + error handling
+	auta_act = *auta_first;
+
+	while (auta_act->dalsi != NULL) {
+		position_actual++;
+
+		if (position_actual == position_add) {
+			auta_posun = auta_act;
+			printf("auta_act: %s\n", auta_act->kategoria);
+			auta_buffer_1 = auta_posun;
+			while (auta_posun->dalsi != NULL) {
+				if (auta_buffer_1 != NULL) {
+					printf("b_1%s\n", auta_buffer_1->kategoria);
+					auta_buffer_2 = auta_posun->dalsi;
+					auta_posun->dalsi = auta_buffer_1;
+					auta_buffer_1 = NULL;
+					if (position_actual == position_add) {
+
+					}
+				}
+				else 
+				{
+					printf("b_2%s\n", auta_buffer_2->kategoria);
+					auta_buffer_1 = auta_posun->dalsi;
+					auta_posun->dalsi = auta_buffer_2;
+					auta_buffer_2 = NULL;
+				}
+				printf("posun: %s\n", auta_posun->kategoria);
+				auta_posun = auta_posun->dalsi;
+				position_actual++;
+			}
+			break;
+		}
+		else
+		{
+			auta_act = auta_act->dalsi;
+		}
+	}
+}
+
+char*	safe_copy_string_form_file(FILE *f) {
 		/*
 		* making of string from  file without '\n'
 		*	copy from file until the '\n'
@@ -190,7 +230,7 @@ char*	safe_copy_string(FILE *f) {
 		return buffer_string;
 }
 
-int	safe_copy_int(FILE *f) {
+int	safe_copy_int_from_file(FILE *f) {
 	char integer_str[11];
 	int integer;
 
@@ -211,5 +251,4 @@ void   alloc_auta(AUTA* auta_act) {
 	auta_act->znacka = (char*)malloc(znacka_size * sizeof(char));
 	auta_act->predajca = (char*)malloc(predajca_size * sizeof(char));
 	auta_act->stav_vozidla = (char*)malloc(stav_vozidla_size * sizeof(char));
-	auta_act->dalsi = NULL;
 }
