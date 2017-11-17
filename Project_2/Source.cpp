@@ -22,9 +22,9 @@ typedef struct auta
 
 }AUTA;
 
-void	fnc_n(AUTA **auta_first);
+int		fnc_n(AUTA **auta_first);
 void	fnc_v(AUTA *auta_first);
-void	fnc_p(AUTA **auta_first);
+void	fnc_p(AUTA **auta_first, int number_of_records);
 
 //custom function for cleaner code
 char*	safe_copy_string_form_file(FILE *f);
@@ -36,6 +36,7 @@ void	alloc_auta(AUTA* auta_alloc);
 void main() {
 	AUTA *auta_first;
 	char function_char;
+	int number_of_records;
 
 	auta_first = NULL;
 	function_char = 'a';
@@ -46,13 +47,13 @@ void main() {
 		switch (function_char)
 		{
 		case 'n':
-			fnc_n(&auta_first);			
+			number_of_records = fnc_n(&auta_first);	
 			break;
 		case 'v':
 			fnc_v(auta_first);
 			break;
 		case 'p':
-			fnc_p(&auta_first);
+			fnc_p(&auta_first,number_of_records);
 		default:
 			break;
 		}
@@ -62,21 +63,19 @@ void main() {
 	return;
 }
 
-void fnc_n(AUTA **auta_first) {
+int fnc_n(AUTA **auta_first) {
 	FILE *file_to_read;
 	AUTA *auta_act;
-	int number_of_records, type_of_record;
+	int type_of_record, number_of_records;
 	char ch;
 
-	//inicialization of variables
 	number_of_records = 0;
-
 
 	//opening of file
 	file_to_read = fopen("auta.txt", "r");
 	if (file_to_read == NULL) {
 		printf("Zaznamy nebolu nacitane\n");
-		return;
+		return 0;
 	}
 
 	//inicial allocation of struct + error handling
@@ -93,7 +92,6 @@ void fnc_n(AUTA **auta_first) {
 		//recognizing start and counting of records
 		if ((ch = fgetc(file_to_read)) == '$') {
 			number_of_records++;
-		
 		}
 		else if (ch == '\0') {
 			break;
@@ -129,6 +127,7 @@ void fnc_n(AUTA **auta_first) {
 	printf("Nacitalo sa %d zaznamov\n", number_of_records);
 	free(auta_act->dalsi);
 	fclose(file_to_read);
+	return number_of_records;
 }
 
 void fnc_v(AUTA *auta_first) {
@@ -142,62 +141,42 @@ void fnc_v(AUTA *auta_first) {
 	while (auta_print->dalsi != NULL) {
 		printf("%d.\n", ++number_of_elements);
 		printf("kategoria: %s\n", auta_print->kategoria);
-		printf("zancka: %s\n", auta_print->znacka);
-		printf("predajca: %s\n", auta_print->predajca);
-		printf("cena: %d\n", auta_print->cena);
-		printf("rok_vyroby: %d\n", auta_print->rok_vyroby);
-		printf("stav_vozidla: %s\n", auta_print->stav_vozidla);
+		//printf("zancka: %s\n", auta_print->znacka);
+		//printf("predajca: %s\n", auta_print->predajca);
+		//printf("cena: %d\n", auta_print->cena);
+		//printf("rok_vyroby: %d\n", auta_print->rok_vyroby);
+		//printf("stav_vozidla: %s\n", auta_print->stav_vozidla);
 		auta_print = auta_print->dalsi;
 	}
 
 }
 
-void fnc_p(AUTA **auta_first) {
-	AUTA *auta_act, *auta_posun, *auta_buffer_1, *auta_buffer_2 = NULL;
-	int position_add, position_actual;
+void fnc_p(AUTA **auta_first, int number_of_records) {
+	AUTA *auta_act, *auta_posun, *auta_buffer_1 = NULL, *auta_buffer_2 = NULL;
+	int position_add;
 
-	//get position where we will add new element of linked list
+	//inicialization
 	scanf("%d", &position_add);
-	position_actual = 0;
-
-	//inicial allocation of struct + error handling
 	auta_act = *auta_first;
 
-	while (auta_act->dalsi != NULL) {
-		position_actual++;
-
-		if (position_actual == position_add) {
-			auta_posun = auta_act;
-			printf("auta_act: %s\n", auta_act->kategoria);
-			auta_buffer_1 = auta_posun;
-			while (auta_posun->dalsi != NULL) {
-				if (auta_buffer_1 != NULL) {
-					printf("b_1%s\n", auta_buffer_1->kategoria);
-					auta_buffer_2 = auta_posun->dalsi;
-					auta_posun->dalsi = auta_buffer_1;
-					auta_buffer_1 = NULL;
-					if (position_actual == position_add) {
-
-					}
-				}
-				else 
-				{
-					printf("b_2%s\n", auta_buffer_2->kategoria);
-					auta_buffer_1 = auta_posun->dalsi;
-					auta_posun->dalsi = auta_buffer_2;
-					auta_buffer_2 = NULL;
-				}
-				printf("posun: %s\n", auta_posun->kategoria);
-				auta_posun = auta_posun->dalsi;
-				position_actual++;
-			}
-			break;
+	for (int i = 1; i <= (number_of_records+1); i++) {
+		printf("actual in for: %s\n", auta_act->kategoria);
+		if (i > (position_add - 1)) {
+			auta_buffer_1 = auta_act;
+			auta_buffer_2 = auta_act->dalsi;
+			auta_act->dalsi = auta_buffer_1;
+			auta_act = auta_act->dalsi;
+			printf("buf %s\n", auta_buffer_1->kategoria);
 		}
 		else
 		{
 			auta_act = auta_act->dalsi;
-		}
+			auta_buffer_1 = auta_act;
+		}			
+		
 	}
+	auta_act->dalsi = NULL;
+	//printf("%s\n", auta_act->kategoria);
 }
 
 char*	safe_copy_string_form_file(FILE *f) {
