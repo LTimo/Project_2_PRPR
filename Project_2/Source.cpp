@@ -219,7 +219,7 @@ void fnc_p(AUTA **auta_first, int number_of_records) {
 void fnc_z(AUTA *auta_first, int number_of_records) {
 	AUTA *auta_act;
 	char *string_to_search, *lower_kategoria;
-	int found, finding, number_of_deleted;
+	int found, finding, number_of_deleted, lenght_of_znacka_act;
 	
 	//inicialization and allocation of all needed variables and pointers
 	number_of_deleted = 0;
@@ -232,19 +232,29 @@ void fnc_z(AUTA *auta_first, int number_of_records) {
 	for (int i = 0; i < znacka_size; i++) {
 		if (string_to_search[i] == '\n') {
 			string_to_search[i] = '\0';
-			found = i - 1;
+			found = i;
 			break;
 		}
+		string_to_search[i] = tolower(string_to_search[i]);
 	}
+	
 
 	while (auta_act != NULL) {
 		finding = 0;
-		for (int i = 0; i < znacka_size; i++) {
+		lower_kategoria = auta_act->znacka;
+		for (lenght_of_znacka_act = 0; lenght_of_znacka_act < znacka_size; lenght_of_znacka_act++) {
+			if (lower_kategoria[lenght_of_znacka_act] == '\n') {
+				lower_kategoria[lenght_of_znacka_act] = '\0';
+				break;
+			}
+			lower_kategoria[lenght_of_znacka_act] = tolower(lower_kategoria[lenght_of_znacka_act]);
+		}
+		for (int i = 0; i <= lenght_of_znacka_act; i++) {
 			if (finding == found) {
 				number_of_deleted++;
 				break;
 			}
-			else if (auta_act->kategoria[i] == string_to_search[finding]){
+			if (auta_act->znacka[i] == string_to_search[finding]){
 				finding++;
 			}
 			else
