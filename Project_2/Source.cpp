@@ -25,7 +25,7 @@ typedef struct auta
 int		fnc_n(AUTA **auta_first);
 void	fnc_v(AUTA *auta_first);
 void	fnc_p(AUTA **auta_first, int number_of_records);
-void	fnc_z(AUTA *auta_first, int number_of_records);
+void	fnc_z(AUTA **auta_first, int number_of_records);
 
 //custom function for cleaner code
 char*	safe_copy_string_form_file(FILE *f);
@@ -65,7 +65,7 @@ void main() {
 			fnc_free(&auta_first);
 			break;
 		case 'z':
-			fnc_z(auta_first,number_of_records);
+			fnc_z(&auta_first,number_of_records);
 			number_of_records--;
 			break;
 		default:
@@ -216,14 +216,14 @@ void fnc_p(AUTA **auta_first, int number_of_records) {
 }
 
 
-void fnc_z(AUTA *auta_first, int number_of_records) {
-	AUTA *auta_act;
+void fnc_z(AUTA **auta_first, int number_of_records) {
+	AUTA *auta_act, *auta_pred;
 	char *string_to_search, *lower_kategoria;
 	int found, finding, number_of_deleted, lenght_of_znacka_act;
 	
 	//inicialization and allocation of all needed variables and pointers
 	number_of_deleted = 0;
-	auta_act = auta_first;
+	auta_act = *auta_first;
 	string_to_search = (char*)malloc(znacka_size);
 	lower_kategoria = (char*)malloc(znacka_size);
 	getc(stdin);
@@ -238,7 +238,7 @@ void fnc_z(AUTA *auta_first, int number_of_records) {
 		string_to_search[i] = tolower(string_to_search[i]);
 	}
 	
-
+	auta_pred = auta_act;
 	while (auta_act != NULL) {
 		finding = 0;
 		lower_kategoria = auta_act->znacka;
@@ -262,7 +262,20 @@ void fnc_z(AUTA *auta_first, int number_of_records) {
 				finding = 0;
 			}
 		}
+		if (auta_act != auta_pred) {
+			auta_pred = auta_pred->dalsi;
+			//printf("dksahf\n");
+		}
+		if (auta_pred == NULL) {
+			auta_pred = auta_act;
+		}
+		
 		auta_act = auta_act->dalsi;
+		if (auta_act == NULL) {
+			printf("najdeno %d\n", number_of_deleted);
+			return;
+		}
+		
 	}
 	printf("najdeno %d\n", number_of_deleted);
 }
