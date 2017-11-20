@@ -219,28 +219,42 @@ void fnc_p(AUTA **auta_first, int number_of_records) {
 void fnc_z(AUTA *auta_first, int number_of_records) {
 	AUTA *auta_act;
 	char *string_to_search, *lower_kategoria;
+	int found, finding, number_of_deleted;
 	
 	//inicialization and allocation of all needed variables and pointers
+	number_of_deleted = 0;
 	auta_act = auta_first;
 	string_to_search = (char*)malloc(znacka_size);
-	string_to_search = (char*)malloc(znacka_size);
+	lower_kategoria = (char*)malloc(znacka_size);
 	getc(stdin);
 	fgets(string_to_search, znacka_size, stdin);
 	//remov '\n' from strinf_to_search
 	for (int i = 0; i < znacka_size; i++) {
 		if (string_to_search[i] == '\n') {
 			string_to_search[i] = '\0';
+			found = i - 1;
 			break;
 		}
 	}
 
 	while (auta_act != NULL) {
+		finding = 0;
 		for (int i = 0; i < znacka_size; i++) {
-			for (int j = 0; j < znacka_size; j++) {
-
+			if (finding == found) {
+				number_of_deleted++;
+				break;
+			}
+			else if (auta_act->kategoria[i] == string_to_search[finding]){
+				finding++;
+			}
+			else
+			{
+				finding = 0;
 			}
 		}
+		auta_act = auta_act->dalsi;
 	}
+	printf("najdeno %d\n", number_of_deleted);
 }
 
 
