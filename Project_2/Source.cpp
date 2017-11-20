@@ -54,12 +54,10 @@ void main() {
 			break;
 		case 'v':
 			fnc_v(auta_first);
-			//printf("%s", auta_first->dalsi->dalsi->dalsi->kategoria);
 			break;
 		case 'p':
 			fnc_p(&auta_first, number_of_records);
 			number_of_records++;
-			printf("number of records %d\n", number_of_records);
 			break;
 		case 'f':
 			fnc_free(&auta_first);
@@ -69,7 +67,6 @@ void main() {
 			if (number_of_records == 0) {
 				fnc_free(&auta_first);
 			}
-			printf("number of records %d\n",number_of_records);
 			break;
 		default:
 			break;
@@ -257,15 +254,15 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 			}
 			lower_kategoria[lenght_of_znacka_act] = tolower(lower_kategoria[lenght_of_znacka_act]);
 		}
-		printf("act = %s", auta_act->znacka);
+		///printf("act = %s", auta_act->znacka);
 		for (int i = 0; i <= lenght_of_znacka_act; i++) {
 			if (finding == found) {
 				number_of_deleted++;
 				//found
 				
-				printf("found\n");
+				///printf("found\n");
 				if (auta_pred == auta_act) {
-					printf("posun 1\n");
+					///printf("posun 1\n");
 					*auta_first = auta_act->dalsi;
 					free(auta_act);
 					auta_act = *auta_first;
@@ -304,14 +301,14 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 			}
 
 			if (auta_act == NULL) {
-				printf("najdeno %d\n", number_of_deleted);
+				///printf("najdeno %d\n", number_of_deleted);
 				return (number_of_records - number_of_deleted);
 			}
 			auta_act = auta_act->dalsi;
 		}
 		skip = 0;
 	}
-	printf("najdeno %d\n", number_of_deleted);
+	///printf("najdeno %d\n", number_of_deleted);
 	return (number_of_records - number_of_deleted);
 }
 
@@ -388,7 +385,7 @@ void	fnc_free(AUTA **auta_first) {
 		*auta_first = (*auta_first)->dalsi;
 		free(temp);
 	}
-	printf("free\n");
+	//printf("free\n");
 }
 
 int		scan_int() {
