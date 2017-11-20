@@ -263,7 +263,16 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 				number_of_deleted++;
 				//found
 				printf("%d == %d\n", number_of_records, number_of_deleted);
-
+				
+				/*if (auta_act != auta_pred) {
+					auta_act = auta_act->dalsi;
+					auta_pred->dalsi = auta_act;
+				}
+				else
+				{
+					*auta_first = auta_act->dalsi;
+				}
+				*/
 				break;
 			}
 			if (lower_kategoria[i] == string_to_search[finding]){
