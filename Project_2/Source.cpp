@@ -25,6 +25,7 @@ typedef struct auta
 int		fnc_n(AUTA **auta_first);
 void	fnc_v(AUTA *auta_first);
 void	fnc_p(AUTA **auta_first, int number_of_records);
+void	fnc_z(AUTA *auta_first, int number_of_records);
 
 //custom function for cleaner code
 char*	safe_copy_string_form_file(FILE *f);
@@ -62,6 +63,11 @@ void main() {
 			break;
 		case 'f':
 			fnc_free(&auta_first);
+			break;
+		case 'z':
+			fnc_z(auta_first,number_of_records);
+			number_of_records--;
+			break;
 		default:
 			break;
 		}
@@ -207,6 +213,34 @@ void fnc_p(AUTA **auta_first, int number_of_records) {
 	auta_to_add->dalsi = auta_act->dalsi;
 	auta_act->dalsi = auta_to_add;
 
+}
+
+
+void fnc_z(AUTA *auta_first, int number_of_records) {
+	AUTA *auta_act;
+	char *string_to_search, *lower_kategoria;
+	
+	//inicialization and allocation of all needed variables and pointers
+	auta_act = auta_first;
+	string_to_search = (char*)malloc(znacka_size);
+	string_to_search = (char*)malloc(znacka_size);
+	getc(stdin);
+	fgets(string_to_search, znacka_size, stdin);
+	//remov '\n' from strinf_to_search
+	for (int i = 0; i < znacka_size; i++) {
+		if (string_to_search[i] == '\n') {
+			string_to_search[i] = '\0';
+			break;
+		}
+	}
+
+	while (auta_act != NULL) {
+		for (int i = 0; i < znacka_size; i++) {
+			for (int j = 0; j < znacka_size; j++) {
+
+			}
+		}
+	}
 }
 
 
