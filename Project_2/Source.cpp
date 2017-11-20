@@ -222,7 +222,7 @@ void fnc_p(AUTA **auta_first, int number_of_records) {
 int fnc_z(AUTA **auta_first, int number_of_records) {
 	AUTA *auta_act, *auta_pred;
 	char *string_to_search, *lower_kategoria;
-	int found, finding, number_of_deleted, lenght_of_znacka_act;
+	int found, finding, number_of_deleted, lenght_of_znacka_act, skip = 0;
 	
 	//inicialization and allocation of all needed variables and pointers
 	number_of_deleted = 0;
@@ -257,12 +257,28 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 			}
 			lower_kategoria[lenght_of_znacka_act] = tolower(lower_kategoria[lenght_of_znacka_act]);
 		}
-		printf("najdene: %s pred: %s", auta_act->znacka, auta_pred->znacka);
+		printf("act = %s", auta_act->znacka);
 		for (int i = 0; i <= lenght_of_znacka_act; i++) {
 			if (finding == found) {
 				number_of_deleted++;
 				//found
-				printf("%d == %d\n", number_of_records, number_of_deleted);
+				
+				printf("found\n");
+				if (auta_pred == auta_act) {
+					printf("posun 1\n");
+					*auta_first = auta_act->dalsi;
+					free(auta_act);
+					auta_act = *auta_first;
+					auta_pred = auta_act;
+					skip = 1;
+				}
+				else
+				{
+					auta_pred->dalsi = auta_act->dalsi;
+				}
+				
+
+			
 
 				break;
 			}
@@ -276,20 +292,24 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 		}
 
 		//handling of list moving
-		if (auta_act != auta_pred) {
-			auta_pred = auta_pred->dalsi;
+		if (skip == 0) {
+			if (number_of_deleted == number_of_records) {
+				return 0;
+			}
+			if ((auta_act != auta_pred) && (auta_pred->dalsi != NULL)) {
+				auta_pred = auta_pred->dalsi;
+			}
+			if (auta_pred == NULL) {
+				auta_pred = auta_act;
+			}
+
+			if (auta_act == NULL) {
+				printf("najdeno %d\n", number_of_deleted);
+				return (number_of_records - number_of_deleted);
+			}
+			auta_act = auta_act->dalsi;
 		}
-		if (auta_pred == NULL) {
-			auta_pred = auta_act;
-		}
-		
-		if (auta_act == NULL) {
-			printf("najdeno %d\n", number_of_deleted);
-			return (number_of_records - number_of_deleted);
-		}
-		auta_act = auta_act->dalsi;
-		
-		
+		skip = 0;
 	}
 	printf("najdeno %d\n", number_of_deleted);
 	return (number_of_records - number_of_deleted);
