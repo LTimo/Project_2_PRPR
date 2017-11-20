@@ -31,13 +31,14 @@ char*	safe_copy_string_form_file(FILE *f);
 int		safe_copy_int_from_file(FILE *f);
 void	alloc_auta(AUTA* auta_alloc);
 void	fnc_free(AUTA **auta_first);
+int		scan_int();
 
 
 
 void main() {
 	AUTA *auta_first;
 	char function_char;
-	int number_of_records;
+	int number_of_records = 0;
 
 	auta_first = NULL;
 	function_char = 'a';
@@ -56,6 +57,9 @@ void main() {
 			break;
 		case 'p':
 			fnc_p(&auta_first, number_of_records);
+			number_of_records++;
+			printf("number of records %d\n", number_of_records);
+			break;
 		case 'f':
 			fnc_free(&auta_first);
 		default:
@@ -161,50 +165,50 @@ void fnc_v(AUTA *auta_first) {
 
 void fnc_p(AUTA **auta_first, int number_of_records) {
 	AUTA *auta_act, *auta_to_add;
-	int position_to_add, position_actual;
+	int position_to_add, position_actual, junk_data;
+
 
 	auta_to_add = NULL;
-	scanf("%d\n", &position_to_add);
+	scanf("%d", &position_to_add);
 	auta_act = *auta_first;
 	position_actual = 0;
-	
+
 	if (auta_to_add == NULL) {
 		auta_to_add = (AUTA *)malloc(sizeof(AUTA));
 		alloc_auta(auta_to_add);
 		auta_to_add->dalsi = NULL;
 	}
+	getc(stdin);
+	fgets(auta_to_add->kategoria, kategoria_size, stdin);
+	fgets(auta_to_add->znacka, znacka_size, stdin);
+	fgets(auta_to_add->predajca, predajca_size, stdin);
+	auta_to_add->cena = scan_int();
+	auta_to_add->rok_vyroby = scan_int();
+	fgets(auta_to_add->stav_vozidla, stav_vozidla_size, stdin);
 
-	//load of data to be writen
-	fgets((auta_to_add->kategoria), kategoria_size, stdin);
-	fgets((auta_to_add->znacka), znacka_size, stdin);
-	fgets((auta_to_add->predajca), predajca_size, stdin);
-	scanf("%d\n", &auta_to_add->cena);
-	scanf("%d\n", &auta_to_add->rok_vyroby);
-	fgets((auta_to_add->stav_vozidla), stav_vozidla_size, stdin);
+
+	if (position_to_add == 1) {
+		*auta_first = auta_to_add;
+		auta_to_add->dalsi = auta_act;
+		return;
+	}
 
 	while (auta_act != NULL) {
 		position_actual++;
-		if (position_actual = position_to_add-1) {
-			if (auta_act->dalsi == NULL) {
-				auta_act->dalsi = (AUTA *)malloc(sizeof(AUTA));
-				alloc_auta(auta_act->dalsi);
-			}
-			auta_act->dalsi = auta_to_add;
-			auta_act = auta_act->dalsi;
-			auta_to_add->dalsi = auta_act;
-			
-		}
-		else if (position_actual > position_to_add)
-		{
-
+		if ((position_actual == position_to_add - 1)|| (position_actual == number_of_records)) {
+			break;
 		}
 		else
 		{
 			auta_act = auta_act->dalsi;
 		}
-	
 	}
+	
+	auta_to_add->dalsi = auta_act->dalsi;
+	auta_act->dalsi = auta_to_add;
+
 }
+
 
 
 char*	safe_copy_string_form_file(FILE *f) {
@@ -277,6 +281,19 @@ void	fnc_free(AUTA **auta_first) {
 		temp = *auta_first;
 		*auta_first = (*auta_first)->dalsi;
 		free(temp);
-
 	}
+	printf("free\n");
+}
+
+int		scan_int() {
+	char buf[200], *end;
+	do {
+		if (!fgets(buf, sizeof buf, stdin))
+			break;
+
+		// remove \n
+		buf[strlen(buf) - 1] = 0;
+
+		return strtol(buf, &end, 10);
+	} while (end != buf + strlen(buf));
 }
