@@ -25,6 +25,7 @@ typedef struct auta
 int		fnc_n(AUTA **auta_first);
 void	fnc_v(AUTA *auta_first);
 void	fnc_p(AUTA **auta_first, int number_of_records);
+int		fnc_z(AUTA **auta_first, int number_of_records);
 
 //custom function for cleaner code
 char*	safe_copy_string_form_file(FILE *f);
@@ -53,15 +54,20 @@ void main() {
 			break;
 		case 'v':
 			fnc_v(auta_first);
-			//printf("%s", auta_first->dalsi->dalsi->dalsi->kategoria);
 			break;
 		case 'p':
 			fnc_p(&auta_first, number_of_records);
 			number_of_records++;
-			printf("number of records %d\n", number_of_records);
 			break;
 		case 'f':
 			fnc_free(&auta_first);
+			break;
+		case 'z':
+			number_of_records = fnc_z(&auta_first,number_of_records);
+			if (number_of_records == 0) {
+				fnc_free(&auta_first);
+			}
+			break;
 		default:
 			break;
 		}
@@ -210,6 +216,103 @@ void fnc_p(AUTA **auta_first, int number_of_records) {
 }
 
 
+int fnc_z(AUTA **auta_first, int number_of_records) {
+	AUTA *auta_act, *auta_pred;
+	char *string_to_search, *lower_kategoria;
+	int found, finding, number_of_deleted, lenght_of_znacka_act, skip = 0;
+	
+	//inicialization and allocation of all needed variables and pointers
+	number_of_deleted = 0;
+	auta_act = *auta_first;
+	string_to_search = (char*)malloc(znacka_size);
+	lower_kategoria = (char*)malloc(znacka_size);
+	getc(stdin);
+	fgets(string_to_search, znacka_size, stdin);
+
+	//remov '\n' from strinf_to_search
+	for (int i = 0; i < znacka_size; i++) {
+		if (string_to_search[i] == '\n') {
+			string_to_search[i] = '\0';
+			found = i;
+			break;
+		}
+		string_to_search[i] = tolower(string_to_search[i]);
+	}
+	
+	auta_pred = auta_act;
+
+	while (auta_act != NULL) {
+		
+		finding = 0;
+
+		//copy of auta_act->znacka to low kategoria with lower cased 
+		strcpy(lower_kategoria, auta_act->znacka);
+		for (lenght_of_znacka_act = 0; lenght_of_znacka_act < znacka_size; lenght_of_znacka_act++) {
+			if (lower_kategoria[lenght_of_znacka_act] == '\n') {
+				lower_kategoria[lenght_of_znacka_act] = '\0';
+				break;
+			}
+			lower_kategoria[lenght_of_znacka_act] = tolower(lower_kategoria[lenght_of_znacka_act]);
+		}
+		///printf("act = %s", auta_act->znacka);
+		for (int i = 0; i <= lenght_of_znacka_act; i++) {
+			if (finding == found) {
+				number_of_deleted++;
+				//found
+				
+				///printf("found\n");
+				if (auta_pred == auta_act) {
+					///printf("posun 1\n");
+					*auta_first = auta_act->dalsi;
+					free(auta_act);
+					auta_act = *auta_first;
+					auta_pred = auta_act;
+					skip = 1;
+				}
+				else
+				{
+					auta_pred->dalsi = auta_act->dalsi;
+				}
+				
+
+			
+
+				break;
+			}
+			if (lower_kategoria[i] == string_to_search[finding]){
+				finding++;
+			}
+			else
+			{
+				finding = 0;
+			}
+		}
+
+		//handling of list moving
+		if (skip == 0) {
+			if (number_of_deleted == number_of_records) {
+				return 0;
+			}
+			if ((auta_act != auta_pred) && (auta_pred->dalsi != NULL)) {
+				auta_pred = auta_pred->dalsi;
+			}
+			if (auta_pred == NULL) {
+				auta_pred = auta_act;
+			}
+
+			if (auta_act == NULL) {
+				///printf("najdeno %d\n", number_of_deleted);
+				return (number_of_records - number_of_deleted);
+			}
+			auta_act = auta_act->dalsi;
+		}
+		skip = 0;
+	}
+	///printf("najdeno %d\n", number_of_deleted);
+	return (number_of_records - number_of_deleted);
+}
+
+
 
 char*	safe_copy_string_form_file(FILE *f) {
 		/*
@@ -282,7 +385,7 @@ void	fnc_free(AUTA **auta_first) {
 		*auta_first = (*auta_first)->dalsi;
 		free(temp);
 	}
-	printf("free\n");
+	//printf("free\n");
 }
 
 int		scan_int() {
