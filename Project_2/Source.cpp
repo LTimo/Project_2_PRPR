@@ -26,6 +26,7 @@ int		fnc_n(AUTA **auta_first);
 void	fnc_v(AUTA *auta_first);
 void	fnc_p(AUTA **auta_first, int number_of_records);
 int		fnc_z(AUTA **auta_first, int number_of_records);
+void	fnc_h(AUTA *auta_first);
 
 //custom function for cleaner code
 char*	safe_copy_string_form_file(FILE *f);
@@ -67,6 +68,9 @@ void main() {
 			if (number_of_records == 0) {
 				fnc_free(&auta_first);
 			}
+			break;
+		case 'h':
+			fnc_h(auta_first);
 			break;
 		default:
 			break;
@@ -310,6 +314,29 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 	}
 	///printf("najdeno %d\n", number_of_deleted);
 	return (number_of_records - number_of_deleted);
+}
+
+void	fnc_h(AUTA *auta_first) {
+	AUTA *auta_act = auta_first;
+	int cena_search, number_of_found = 0;
+
+	
+	scanf("%d", &cena_search);
+	while (auta_act != NULL) {
+		if (cena_search >= auta_act->cena) {
+			number_of_found++;
+			printf("%d.\n", number_of_found);
+			printf("kategoria: %s", auta_act->kategoria);
+			printf("zancka: %s", auta_act->znacka);
+			printf("predajca: %s", auta_act->predajca);
+			printf("cena: %d\n", auta_act->cena);
+			printf("rok_vyroby: %d\n", auta_act->rok_vyroby);
+			printf("stav_vozidla: %s", auta_act->stav_vozidla);
+		}
+		auta_act = auta_act->dalsi;
+
+	}
+	free(auta_act);
 }
 
 
