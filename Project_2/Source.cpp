@@ -29,12 +29,11 @@ int		fnc_z(AUTA **auta_first, int number_of_records);
 void	fnc_h(AUTA *auta_first);
 
 //custom function for cleaner code
-char*	safe_copy_string_form_file(FILE *f);
+char*	safe_copy_string_form_file(FILE *f, int size_of_string);
 int		safe_copy_int_from_file(FILE *f);
 void	alloc_auta(AUTA* auta_alloc);
 void	fnc_free(AUTA **auta_first);
 int		scan_int();
-
 
 
 void main() {
@@ -84,7 +83,7 @@ void main() {
 int fnc_n(AUTA **auta_first) {
 	FILE *file_to_read;
 	AUTA *auta_act, *temp = NULL;
-	int type_of_record, number_of_records;
+	int number_of_records;
 	char ch;
 
 	number_of_records = 0;
@@ -135,12 +134,12 @@ int fnc_n(AUTA **auta_first) {
 				}
 				//reading from file and saving it to linked list
 				ch = fgetc(file_to_read);
-				auta_act->kategoria = safe_copy_string_form_file(file_to_read);
-				auta_act->znacka = safe_copy_string_form_file(file_to_read);
-				auta_act->predajca = safe_copy_string_form_file(file_to_read);
+				auta_act->kategoria = safe_copy_string_form_file(file_to_read,kategoria_size);
+				auta_act->znacka = safe_copy_string_form_file(file_to_read,znacka_size);
+				auta_act->predajca = safe_copy_string_form_file(file_to_read,predajca_size);
 				auta_act->cena = safe_copy_int_from_file(file_to_read);
 				auta_act->rok_vyroby = safe_copy_int_from_file(file_to_read);
-				auta_act->stav_vozidla = safe_copy_string_form_file(file_to_read);
+				auta_act->stav_vozidla = safe_copy_string_form_file(file_to_read,stav_vozidla_size);
 				
 			}
 		}
@@ -170,12 +169,13 @@ void fnc_v(AUTA *auta_first) {
 		printf("stav_vozidla: %s", auta_print->stav_vozidla);
 		auta_print = auta_print->dalsi;
 	}
+	free(auta_print);
 
 }
 
 void fnc_p(AUTA **auta_first, int number_of_records) {
 	AUTA *auta_act, *auta_to_add;
-	int position_to_add, position_actual, junk_data;
+	int position_to_add, position_actual;
 
 
 	auta_to_add = NULL;
@@ -222,14 +222,14 @@ void fnc_p(AUTA **auta_first, int number_of_records) {
 
 int fnc_z(AUTA **auta_first, int number_of_records) {
 	AUTA *auta_act, *auta_pred;
-	char *string_to_search, *lower_kategoria;
+	char *string_to_search, *lower_znacka;
 	int found, finding, number_of_deleted, lenght_of_znacka_act, skip = 0;
 	
 	//inicialization and allocation of all needed variables and pointers
 	number_of_deleted = 0;
 	auta_act = *auta_first;
 	string_to_search = (char*)malloc(znacka_size);
-	lower_kategoria = (char*)malloc(znacka_size);
+	lower_znacka = (char*)malloc(znacka_size);
 	getc(stdin);
 	fgets(string_to_search, znacka_size, stdin);
 
@@ -249,24 +249,22 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 		
 		finding = 0;
 
-		//copy of auta_act->znacka to low kategoria with lower cased 
-		strcpy(lower_kategoria, auta_act->znacka);
+		//copy of auta_act->znacka to low kategoria with lower cased all chars
+		strcpy(lower_znacka, auta_act->znacka);
 		for (lenght_of_znacka_act = 0; lenght_of_znacka_act < znacka_size; lenght_of_znacka_act++) {
-			if (lower_kategoria[lenght_of_znacka_act] == '\n') {
-				lower_kategoria[lenght_of_znacka_act] = '\0';
+			if (lower_znacka[lenght_of_znacka_act] == '\n') {
+				lower_znacka[lenght_of_znacka_act] = '\0';
 				break;
 			}
-			lower_kategoria[lenght_of_znacka_act] = tolower(lower_kategoria[lenght_of_znacka_act]);
+			lower_znacka[lenght_of_znacka_act] = tolower(lower_znacka[lenght_of_znacka_act]);
 		}
-		///printf("act = %s", auta_act->znacka);
 		for (int i = 0; i <= lenght_of_znacka_act; i++) {
 			if (finding == found) {
-				number_of_deleted++;
 				//found
+				number_of_deleted++;
 				
-				///printf("found\n");
+				//if it is first element in list
 				if (auta_pred == auta_act) {
-					///printf("posun 1\n");
 					*auta_first = auta_act->dalsi;
 					free(auta_act);
 					auta_act = *auta_first;
@@ -277,13 +275,10 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 				{
 					auta_pred->dalsi = auta_act->dalsi;
 				}
-				
-
-			
 
 				break;
 			}
-			if (lower_kategoria[i] == string_to_search[finding]){
+			if (lower_znacka[i] == string_to_search[finding]){
 				finding++;
 			}
 			else
@@ -305,14 +300,16 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 			}
 
 			if (auta_act == NULL) {
-				///printf("najdeno %d\n", number_of_deleted);
 				return (number_of_records - number_of_deleted);
 			}
 			auta_act = auta_act->dalsi;
 		}
 		skip = 0;
 	}
-	///printf("najdeno %d\n", number_of_deleted);
+
+	//deallocation of not needed stuf
+	free(string_to_search);
+	free(lower_znacka);
 	return (number_of_records - number_of_deleted);
 }
 
@@ -341,7 +338,7 @@ void	fnc_h(AUTA *auta_first) {
 
 
 
-char*	safe_copy_string_form_file(FILE *f) {
+char*	safe_copy_string_form_file(FILE *f, int size_of_string) {
 		/*
 		* making of string from  file without '\n'
 		*	copy from file until the '\n'
@@ -353,8 +350,7 @@ char*	safe_copy_string_form_file(FILE *f) {
 		int i = 0;
 
 		//allocation of *buffer_string
-		//need to change the 51 nuber to dinamic number
-		buffer_string = (char *)malloc(stav_vozidla_size * sizeof(char));
+		buffer_string = (char *)malloc(size_of_string * sizeof(char));
 		if (buffer_string == NULL) {
 			printf("error");
 		}
@@ -389,6 +385,9 @@ int	safe_copy_int_from_file(FILE *f) {
 }
 
 void   alloc_auta(AUTA* auta_act) {
+	/*
+	 *	allocation of all dynamic arrays in AUTA
+	 */
 	if (auta_act == NULL) {
 		printf("error alloc auta\n");
 		return;
@@ -402,6 +401,7 @@ void   alloc_auta(AUTA* auta_act) {
 void	fnc_free(AUTA **auta_first) { 
 	/*
 	 *   test of deallocation
+	 *	 used in function z
 	*/
 	
 	AUTA *temp;
@@ -426,4 +426,5 @@ int		scan_int() {
 
 		return strtol(buf, &end, 10);
 	} while (end != buf + strlen(buf));
+	return 0;
 }
