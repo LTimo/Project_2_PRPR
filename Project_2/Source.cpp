@@ -27,6 +27,7 @@ void	fnc_v(AUTA *auta_first);
 void	fnc_p(AUTA **auta_first, int number_of_records);
 int		fnc_z(AUTA **auta_first, int number_of_records);
 void	fnc_h(AUTA *auta_first);
+void	fnc_a(AUTA **auta_first, int number_of_records);
 
 //custom function for cleaner code
 char*	safe_copy_string_form_file(FILE *f, int size_of_string);
@@ -59,9 +60,9 @@ void main() {
 			fnc_p(&auta_first, number_of_records);
 			number_of_records++;
 			break;
-		case 'f':
+		/*case 'f':
 			fnc_free(&auta_first);
-			break;
+			break;*/
 		case 'z':
 			number_of_records = fnc_z(&auta_first,number_of_records);
 			if (number_of_records == 0) {
@@ -70,6 +71,9 @@ void main() {
 			break;
 		case 'h':
 			fnc_h(auta_first);
+			break;
+		case 'a':
+			fnc_a(&auta_first, number_of_records);
 			break;
 		default:
 			break;
@@ -336,6 +340,56 @@ void	fnc_h(AUTA *auta_first) {
 	free(auta_act);
 }
 
+void	fnc_a(AUTA **auta_first, int number_of_records) {
+	if (*auta_first == NULL) { return; }
+
+	AUTA *auta_act, *auta_to_update, *auta_to_add;
+	char znacka_search[znacka_size];
+	int cena_search;
+
+	auta_to_add = (AUTA *)malloc(sizeof(AUTA));
+	alloc_auta(auta_to_add);
+	auta_to_add->dalsi = NULL;
+
+	auta_act = *auta_first;
+	fgetc(stdin);
+	fgets(znacka_search, 100, stdin);
+	scanf("%d", &cena_search);
+	
+	getc(stdin);
+
+	fgets(auta_to_add->kategoria, kategoria_size, stdin);
+	fgets(auta_to_add->znacka, znacka_size, stdin);
+	fgets(auta_to_add->predajca, predajca_size, stdin);
+	auta_to_add->cena = scan_int();
+	auta_to_add->rok_vyroby = scan_int();
+	fgets(auta_to_add->stav_vozidla, stav_vozidla_size, stdin);
+
+	
+
+	while (auta_act != NULL) {
+		for (int i = 0; i < znacka_size; i++) {
+			if (znacka_search[i] == '\0') {
+				if (cena_search == auta_act->cena) {
+					auta_act->kategoria = auta_to_add->kategoria;
+					auta_act->znacka = auta_to_add->znacka;
+					auta_act->predajca = auta_to_add->predajca;
+					auta_act->cena = auta_to_add->cena;
+					auta_act->rok_vyroby = auta_to_add->rok_vyroby;
+					auta_act->stav_vozidla = auta_to_add->stav_vozidla;
+				}
+				break;
+			}
+			if (znacka_search[i] != auta_act->znacka[i])
+			{
+				break;
+			}
+			
+		}
+		auta_act = auta_act->dalsi;
+	}
+}
+
 
 
 char*	safe_copy_string_form_file(FILE *f, int size_of_string) {
@@ -416,7 +470,7 @@ void	fnc_free(AUTA **auta_first) {
 }
 
 int		scan_int() {
-	char buf[200], *end;
+	char buf[stav_vozidla_size], *end;
 	do {
 		if (!fgets(buf, sizeof buf, stdin))
 			break;
