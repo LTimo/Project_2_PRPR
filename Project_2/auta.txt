@@ -1,18 +1,4 @@
 $
-1.osobny automobil
-Ferrari
-Autobazar Pestovatelska 4 Bratislava
-68957
-2012
-udrziavane cervene dvojdverove
-$
-kamion
-Renault magnum
-AUTO Modranska 5 Senec
-28000
-2016
-po havarii opraveny v dobrom stave
-$
 osobny automobil
 Ferrari
 Autobazar Pestovatelska 4 Bratislava
@@ -20,7 +6,7 @@ Autobazar Pestovatelska 4 Bratislava
 2012
 udrziavane cervene dvojdverove
 $
-4.kamion
+kamion
 Renault magnum
 AUTO Modranska 5 Senec
 28000

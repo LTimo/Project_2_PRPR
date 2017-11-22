@@ -1,3 +1,9 @@
+/*
+ *	Timotej Lábský
+ *	Projekt è.2
+ *	´+ bonus Z
+*/
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
