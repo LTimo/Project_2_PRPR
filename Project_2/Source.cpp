@@ -66,9 +66,6 @@ void main() {
 			fnc_p(&auta_first, number_of_records);
 			number_of_records++;
 			break;
-		/*case 'f':
-			fnc_free(&auta_first);
-			break;*/
 		case 'z':
 			number_of_records = fnc_z(&auta_first,number_of_records);
 			if (number_of_records == 0) {
@@ -81,16 +78,33 @@ void main() {
 		case 'a':
 			fnc_a(&auta_first, number_of_records);
 			break;
+		/*case 'f':
+			fnc_free(&auta_first);
+			break;*/
 		default:
 			break;
 		}
 
 	}
-
+	fnc_free(&auta_first);
 	return;
 }
 
 int fnc_n(AUTA **auta_first) {
+	/*
+	*	fuction to load data from file 
+	*	and store them in linked list
+	*
+	*	data order in file
+	*		$ - start of new record
+	*		*kategory (*char)
+	*		*znacka	(*char)
+	*		*predajca (*char)
+	*		*cena (int)
+	*		*rok_vyroby (int)
+	*		*stav_vozidla (*char)
+	*/
+
 	FILE *file_to_read;
 	AUTA *auta_act, *temp = NULL;
 	int number_of_records;
@@ -98,21 +112,15 @@ int fnc_n(AUTA **auta_first) {
 
 	number_of_records = 0;
 
-	//opening of file
+	//opening of file and error handling
 	file_to_read = fopen("auta.txt", "r");
 	if (file_to_read == NULL) {
 		printf("Zaznamy nebolu nacitane\n");
 		return 0;
 	}
 
-	//dealoc 
-	while (*auta_first != NULL)
-	{
-		temp = *auta_first;
-		*auta_first = (*auta_first)->dalsi;
-		free(temp);
-
-	}
+	//dealocation of linked list
+	fnc_free(auta_first);
 	
 
 	//inicial allocation of struct + error handling
@@ -123,25 +131,32 @@ int fnc_n(AUTA **auta_first) {
 	}
 	alloc_auta(auta_act);
 	auta_act->dalsi = NULL;
+
+	//auta_act => to navigate thorugh linked list
 	*auta_first = auta_act;
 
 
 	while (!feof(file_to_read)) {
-		//recognizing start and counting of records
+		//recognizing start of record and counting of records
 		if ((ch = fgetc(file_to_read)) == '$') {
 			number_of_records++;
 
+			//end of file handling there might be added option for more "stupid" proof program
 			if (ch == '\0') {
 				break;
 			}
 			else
 			{
+				//allocate only if there is more than 1 record because of the inicial allocation
 				if (number_of_records > 1) {
-					auta_act->dalsi = (auta*)malloc(sizeof(auta));
+					if ((auta_act->dalsi = (auta*)malloc(sizeof(auta))) == NULL) {
+						printf("malo pamete\n");
+					}
 					alloc_auta(auta_act->dalsi);
 					auta_act = auta_act->dalsi;
 					auta_act->dalsi = NULL;
 				}
+
 				//reading from file and saving it to linked list
 				ch = fgetc(file_to_read);
 				auta_act->kategoria = safe_copy_string_form_file(file_to_read,kategoria_size);
@@ -154,21 +169,37 @@ int fnc_n(AUTA **auta_first) {
 			}
 		}
 	}
-		printf("Nacitalo sa %d zaznamov\n", number_of_records);
-		free(auta_act->dalsi);
-		fclose(file_to_read);
-		return number_of_records;
+
+	//if no record then dealloc
+	if (number_of_records == 0) {
+		fnc_free(auta_first);
+		printf("Nacitalo sa 0 zaznamov");
+		fnc_free(&temp);
+		return 0;
+	}
+
+	//end of function with printing of number of loadede records and return of number records
+	printf("Nacitalo sa %d zaznamov\n", number_of_records);
+	free(auta_act->dalsi);
+	fclose(file_to_read);
+	fnc_free(&temp);
+	return number_of_records;
 	}
 
 
 void fnc_v(AUTA *auta_first) {
+	/*
+	*	print whole linked list if there is any
+	*/
 	AUTA* auta_print = auta_first;
 	int number_of_elements = 0;
 
+	//if there is no record do nothing
 	if (auta_first == NULL) {
 		return;
 	}
 
+	//printing untli end of linked list
 	while (auta_print != NULL) {
 		printf("%d.\n", ++number_of_elements);
 		printf("kategoria: %s", auta_print->kategoria);
@@ -179,22 +210,39 @@ void fnc_v(AUTA *auta_first) {
 		printf("stav_vozidla: %s", auta_print->stav_vozidla);
 		auta_print = auta_print->dalsi;
 	}
+	//dealloc temporary pointer to moving through linked list
 	free(auta_print);
 
 }
 
 void fnc_p(AUTA **auta_first, int number_of_records) {
+	/*
+	*	Add to a linked list new record on position
+	*	users input
+	*		*position
+	*		*kategory (*char)
+	*		*znacka	(*char)
+	*		*predajca (*char)
+	*		*cena (int)
+	*		*rok_vyroby (int)
+	*		*stav_vozidla (*char)
+	*	if no linked list then it will be created
+	*	if the postion is greater then last record in linked list 
+	*		*will be added at the end of linked list
+	*/
 	AUTA *auta_act, *auta_to_add;
 	int position_to_add, position_actual;
 
-
+	//inicitalization and scan of position;
 	auta_to_add = NULL;
 	scanf("%d", &position_to_add);
 	auta_act = *auta_first;
 	position_actual = 0;
 
 	if (auta_to_add == NULL) {
-		auta_to_add = (AUTA *)malloc(sizeof(AUTA));
+		if ((auta_to_add = (AUTA *)malloc(sizeof(AUTA))) == NULL) {
+		printf("malo pamete\n");
+	}
 		alloc_auta(auta_to_add);
 		auta_to_add->dalsi = NULL;
 	}
@@ -206,13 +254,20 @@ void fnc_p(AUTA **auta_first, int number_of_records) {
 	auta_to_add->rok_vyroby = scan_int();
 	fgets(auta_to_add->stav_vozidla, stav_vozidla_size, stdin);
 
-
+	//if no record in linked list
+	if (number_of_records == 0) {
+		*auta_first = auta_to_add;
+		auta_to_add->dalsi = NULL;
+		return;
+	}
+	//if position to add is first
 	if (position_to_add == 1) {
 		*auta_first = auta_to_add;
 		auta_to_add->dalsi = auta_act;
 		return;
 	}
 
+	//get to the positon 
 	while (auta_act != NULL) {
 		position_actual++;
 		if ((position_actual == position_to_add - 1)|| (position_actual == number_of_records)) {
@@ -224,8 +279,10 @@ void fnc_p(AUTA **auta_first, int number_of_records) {
 		}
 	}
 	
+	
 	auta_to_add->dalsi = auta_act->dalsi;
 	auta_act->dalsi = auta_to_add;
+
 
 }
 
@@ -238,8 +295,12 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 	//inicialization and allocation of all needed variables and pointers
 	number_of_deleted = 0;
 	auta_act = *auta_first;
-	string_to_search = (char*)malloc(znacka_size);
-	lower_znacka = (char*)malloc(znacka_size);
+	if ((string_to_search = (char*)malloc(znacka_size)) == NULL) {
+	printf("malo pamete\n");
+	}
+	if ((lower_znacka = (char*)malloc(znacka_size)) == NULL) {
+	printf("malo pamete\n");
+	}
 	getc(stdin);
 	fgets(string_to_search, znacka_size, stdin);
 
@@ -349,11 +410,13 @@ void	fnc_h(AUTA *auta_first) {
 void	fnc_a(AUTA **auta_first, int number_of_records) {
 	if (*auta_first == NULL) { return; }
 
-	AUTA *auta_act, *auta_to_update, *auta_to_add;
+	AUTA *auta_act, *auta_to_add;
 	char znacka_search[znacka_size];
 	int cena_search;
 
-	auta_to_add = (AUTA *)malloc(sizeof(AUTA));
+	if ((auta_to_add = (AUTA *)malloc(sizeof(AUTA))) == NULL) {
+	printf("malo pamete\n");
+	}
 	alloc_auta(auta_to_add);
 	auta_to_add->dalsi = NULL;
 
@@ -410,7 +473,9 @@ char*	safe_copy_string_form_file(FILE *f, int size_of_string) {
 		int i = 0;
 
 		//allocation of *buffer_string
-		buffer_string = (char *)malloc(size_of_string * sizeof(char));
+		if ((buffer_string = (char *)malloc(size_of_string * sizeof(char))) == NULL) {
+			printf("malo pamete\n");
+		}
 		if (buffer_string == NULL) {
 			printf("error");
 		}
@@ -429,12 +494,15 @@ char*	safe_copy_string_form_file(FILE *f, int size_of_string) {
 }
 
 int	safe_copy_int_from_file(FILE *f) {
+	/*
+	 *	function to save int from file
+	 *
+	 */
 	char integer_str[11];
 	int integer;
 	for (int i = 0; i < 11; i++) {
 		integer_str[i] = fgetc(f);
 		if (integer_str[i] == '\n') {
-			integer_str[i] = '\n';
 			integer_str[i + 1] = '\0';
 			break;
 		}
@@ -452,16 +520,25 @@ void   alloc_auta(AUTA* auta_act) {
 		printf("error alloc auta\n");
 		return;
 	}
-	auta_act->kategoria = (char*)malloc(kategoria_size * sizeof(char));
-	auta_act->znacka = (char*)malloc(znacka_size * sizeof(char));
-	auta_act->predajca = (char*)malloc(predajca_size * sizeof(char));
-	auta_act->stav_vozidla = (char*)malloc(stav_vozidla_size * sizeof(char));
+
+	if ((auta_act->kategoria = (char*)malloc(kategoria_size * sizeof(char))) == NULL) {
+		printf("malo pamete\n");
+	}
+	if ((auta_act->znacka = (char*)malloc(znacka_size * sizeof(char))) == NULL) {
+		printf("malo pamete\n");
+	}
+	if ((auta_act->predajca = (char*)malloc(predajca_size * sizeof(char))) == NULL) {
+	printf("malo pamete\n");
+	}
+	if ((auta_act->stav_vozidla = (char*)malloc(stav_vozidla_size * sizeof(char))) == NULL) {
+	printf("malo pamete\n");
+	}
 }
 
 void	fnc_free(AUTA **auta_first) { 
 	/*
-	 *   test of deallocation
-	 *	 used in function z
+	 *   fuction to dealloc list of struct
+	 *	 
 	*/
 	
 	AUTA *temp;
@@ -472,7 +549,6 @@ void	fnc_free(AUTA **auta_first) {
 		*auta_first = (*auta_first)->dalsi;
 		free(temp);
 	}
-	//printf("free\n");
 }
 
 int		scan_int() {
