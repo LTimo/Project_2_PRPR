@@ -381,6 +381,7 @@ int fnc_z(AUTA **auta_first, int number_of_records) {
 	//deallocation of not needed stuf
 	free(string_to_search);
 	free(lower_znacka);
+	printf("Vymazalo sa %d zaznamov\n", number_of_deleted);
 	return (number_of_records - number_of_deleted);
 }
 
