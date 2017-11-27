@@ -405,6 +405,9 @@ void	fnc_h(AUTA *auta_first) {
 		auta_act = auta_act->dalsi;
 
 	}
+	if (number_of_found == 0) {
+		printf("V ponuke su len auta s vyssou cenou\n");
+	}
 	free(auta_act);
 }
 
